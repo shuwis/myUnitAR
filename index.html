@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<!-- <script src="js/aframe.js"></script> -->
+		<script src="https://aframe.io/releases/0.9.0/aframe.min.js"></script>
+        <script src="js/aframe-ar.js"></script>
+        <script>
+            window.onload = () => {
+                var ascene = document.createElement('a-scene');
+                ascene.setAttribute("embedded", ""); 
+                ascene.setAttribute("arjs", "sourceType: webcam;");
+                ascene.setAttribute("vr-mode-ui", "enabled: false;");
+                var assets = document.createElement('a-assets');
+                let videoTag = document.createElement('video');
+                videoTag.setAttribute("crossOrigin", "anonymous");
+                videoTag.setAttribute("id", "vid");
+                videoTag.setAttribute("loop", "true");
+                videoTag.setAttribute("type", "video/mp4");
+                videoTag.setAttribute("src", "video/sintel.mp4");
+                assets.appendChild(videoTag);
+                //<img id="hiroClick" src="data/tap.png" style="display:none;">
+                let imgTag = document.createElement('img');
+                imgTag.setAttribute("id", "hiroclick");
+                imgTag.setAttribute("src", "img/tap.png");
+                imgTag.setAttribute("style", "display:none;");
+                assets.appendChild(imgTag);
+                ascene.appendChild(assets);
+
+                let amarker = document.createElement('a-marker');
+                amarker.setAttribute("preset", "hiro");
+                amarker.setAttribute("id", "marker-hiro");
+                amarker.setAttribute("registerevents", "");
+                let avideo = document.createElement('a-video');
+                avideo.setAttribute("src", "#vid");
+                avideo.setAttribute("width", "1");
+                avideo.setAttribute("height", "1");
+                avideo.setAttribute("position", "0 0 0");
+                avideo.setAttribute("rotation", "270 0 0");
+                avideo.setAttribute("play", "true");
+                amarker.appendChild(avideo);
+                //<a-image src="#hiroClick" rotation="270 0 0"></a-image> -->
+                let aimage = document.createElement('a-image');
+                aimage.setAttribute("src", "#hiroClick");
+                aimage.setAttribute("rotation", "270 0 0");
+                amarker.appendChild(aimage);
+                ascene.appendChild(amarker);
+
+                let aentity = document.createElement('a-entity');
+                aentity.setAttribute("camera", "active: true");
+                aentity.setAttribute("position", "0 0 0");
+                aentity.setAttribute("look-controls", "");
+                aentity.setAttribute("data-aframe-default-camera", "");
+                ascene.appendChild(aentity);
+
+                document.body.appendChild(ascene);
+            }
+
+        </script>
+		<script>
+			AFRAME.registerComponent('registerevents', {
+				init: function () {
+					//this handler don't work with a-marker-camera
+					var marker = this.el;
+					let video = document.querySelector("#vid");
+					let clickImg = document.getElementsByTagName("a-image");
+					// let portraitImg = document.querySelector("#portraitOrient");
+					marker.addEventListener('markerFound', function() {
+						var markerId = marker.id;
+						if (window.innerWidth > window.innerHeight) {
+							// clickImg[1].setAttribute("transparent", "false");
+							document.addEventListener('click', function (event) {
+								if(video.paused)
+								{
+									clickImg[0].setAttribute("transparent", "false");
+									video.play();
+								}
+								else
+								{
+									clickImg[0].setAttribute("transparent", "true");
+									video.pause();
+								}
+							})
+						} else {
+							// clickImg[1].setAttribute("transparent", "true");
+							clickImg[0].setAttribute("transparent", "false");
+						}
+					});
+
+					marker.addEventListener('markerLost', function() {
+						var markerId = marker.id;
+						if (window.innerWidth > window.innerHeight) {
+							if(video.played)
+							{
+								clickImg[0].setAttribute("transparent", "true");
+								video.pause();
+								// clickImg[1].setAttribute("transparent", "false");
+							}
+						} else {
+							// clickImg[1].setAttribute("transparent", "true");
+							clickImg[0].setAttribute("transparent", "false");
+						}
+					});
+				},
+				tick: function () {
+					let video = document.getElementsByTagName("video");
+					let clickImg = document.getElementsByTagName("a-image");
+					if (video.length > 1){
+						if (window.innerWidth > window.innerHeight) {
+							// clickImg[1].setAttribute("transparent", "false");
+						}
+						// if (window.innerWidth > window.innerHeight) {
+						// 	document.getElementsByTagName("video")[1].style.display = null;
+						// 	document.getElementById("warning-message").style.display = 'none';
+						// } else {
+						// 	let video = document.getElementsByTagName("video")[1];
+						// 	video.style.display = 'none';
+						// 	document.getElementById("warning-message").style.display = 'block';
+						// }
+					}
+				},
+			});
+			// resizeHandler ();
+        </script>
+	</head>
+
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+
+		<!-- <a-scene embedded arjs='sourceType: webcam;' vr-mode-ui="enabled: false"> -->
+			<!-- <a-assets> -->
+				<!-- <video crossOrigin="anonymous" id="vid" loop="true" type="video/mp4" src="video/sintel.mp4"></video> -->
+				<!-- <img id="portraitOrient" src="data/portrait_disable.png" style="display:none;"> -->
+				<!-- <img id="hiroClick" src="data/tap.png" style="display:none;"> -->
+			<!-- </a-assets> -->
+
+			<!-- handle hiro marker -->
+			<!-- 'registerevents' will register event listeners for the marker when it is found and lost,
+			as defined in the inline script above -->
+			<!-- <a-marker preset='hiro' id='marker-hiro' registerevents> -->
+				<!-- <a-video src="#vid" width="1" height="1" position="0 0 0" rotation="270 0 0" play="true"></a-video> -->
+				<!-- <a-image src="#hiroClick" rotation="270 0 0"></a-image> -->
+				<!-- <a-image src="#portraitOrient" rotation="270 0 0"></a-image> -->
+			<!-- </a-marker> -->
+
+			<!-- add a simple camera -->
+			<!-- <a-entity camera="active: true" position="0 0 0" look-controls data-aframe-default-camera></a-entity> -->
+        </a-scene>
+        
+	</body>
+</html>
