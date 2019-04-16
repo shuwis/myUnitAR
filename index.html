@@ -12,7 +12,7 @@
             window.onload = () => {
                 var ascene = document.createElement('a-scene');
                 ascene.setAttribute("embedded", ""); 
-                ascene.setAttribute("arjs", "sourceType:webcam;");
+                ascene.setAttribute("arjs", "sourceType:webcam;patternRatio:0.9");
                 ascene.setAttribute("vr-mode-ui", "enabled:false;");
                 var assets = document.createElement('a-assets');
                 let videoTag = document.createElement('video');
