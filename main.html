@@ -96,7 +96,6 @@
         </script>
 		<script>
             if (!/Android/i.test(navigator.userAgent)) {
-                alert('IOS');
                 var orientLandscape, oldOrientLandscape;
                 AFRAME.registerComponent('registerevents', {
                     init: function () {
@@ -171,13 +170,13 @@
 	</head>
 
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-        <video crossOrigin="anonymous" id="vidAndroid" loop="true" type="video/mp4" src="video/sintel.mp4" style="display:none"></video>
+        <!-- <video crossOrigin="anonymous" id="vidAndroid" loop="true" type="video/mp4" src="video/sintel.mp4" style="display:none"></video> -->
+        <video crossOrigin="anonymous" id="vidAndroid" loop="true" type="video/mp4" src="video/masha.mp4" style="display:none"></video>
         <img id="portraitOrient" src="img/portrait_disable.png" style="display:none;">
         <img id="hiroClick" src="img/tap.png" style="display:none;">
         
         <script>
             if (/Android/i.test(navigator.userAgent)) {
-                alert('Android');
                 var scene, camera, renderer, clock, deltaTime, totalTime;
                 var arToolkitSource, arToolkitContext;
                 var markerRoot1;
@@ -284,7 +283,8 @@
                     markerRoot1.name = 'objects';
                     scene.add(markerRoot1);
                     let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
-                        type: 'pattern', patternUrl: "patterns/hiro.patt",
+                        // type: 'pattern', patternUrl: "patterns/hiro.patt",
+                        type: 'pattern', patternUrl: "patterns/masha-marker.patt",
                     })
         
                     let geometry1 = new THREE.PlaneBufferGeometry(1,1, 4,4);
