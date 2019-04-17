@@ -11,16 +11,17 @@
         <script>
             window.onload = () => {
                 var ascene = document.createElement('a-scene');
-                ascene.setAttribute("embedded", ""); 
+                ascene.setAttribute("embedded", "");
                 ascene.setAttribute("arjs", "sourceType:webcam;patternRatio:0.9");
                 ascene.setAttribute("vr-mode-ui", "enabled:false;");
                 var assets = document.createElement('a-assets');
                 let videoTag = document.createElement('video');
                 videoTag.setAttribute("crossOrigin", "anonymous");
-                videoTag.setAttribute("id", "vid");
+                videoTag.setAttribute("id", "vidIphone");
                 videoTag.setAttribute("loop", "true");
                 videoTag.setAttribute("type", "video/mp4");
                 videoTag.setAttribute("src", "video/sintel.mp4");
+
                 assets.appendChild(videoTag);
 
                 let clickImgTag = document.createElement('img');
@@ -42,7 +43,7 @@
                 amarker.setAttribute("id", "marker-hiro");
                 amarker.setAttribute("registerevents", "");
                 let avideo = document.createElement('a-video');
-                avideo.setAttribute("src", "#vid");
+                avideo.setAttribute("src", "#vidIphone");
                 avideo.setAttribute("width", "1");
                 avideo.setAttribute("height", "1");
                 avideo.setAttribute("position", "0 0 0");
@@ -76,7 +77,6 @@
 				let elentity = document.querySelector('a-entity[camera]');
 				elentity.setAttribute('camera', {active:true});
 				elentity.removeAttribute('wasd-controls');
-				
             }
 
         </script>
@@ -85,7 +85,7 @@
 			AFRAME.registerComponent('registerevents', {
 				init: function () {
 					var marker = this.el;
-					let video = document.querySelector('video');
+					let video = document.querySelector('#vidIphone');
 					let clickImg = document.querySelectorAll('a-image')[0];
 					let portraitImg = document.querySelectorAll('a-image')[1];
 
@@ -96,11 +96,8 @@
 							portraitImg.object3D.visible = false;
 							oldOrientLandscape = true;
 						} else {
-							// portraitImg.setAttribute("transparent", "true");
-							// clickImg.setAttribute("transparent", "false");
 							clickImg.object3D.visible = false;
 							portraitImg.object3D.visible = true;
-							// video.object3D.visible = false;
 							oldOrientLandscape = false;
 						}
 					});
@@ -132,22 +129,7 @@
 					})
 				},
 				tick: function () {
-					// let video = document.getElementsByTagName("video");
-					// let clickImg = document.querySelectorAll('a-image')[0];
-					// let portraitImg = document.querySelectorAll('a-image')[1];
-					// // if (video.length > 1){
-						
-					// 	if (window.innerWidth > window.innerHeight) {
-					// 		// video[1].style.display = null;
-					// 		clickImg.object3D.visible = true;
-					// 		portraitImg.object3D.visible = false;
-					// 	} else {
-					// 		// video[1].style.display = 'none';
-					// 		clickImg.object3D.visible = false;
-					// 		portraitImg.object3D.visible = true;
-					// 	}
-					// }
-					
+
 					orientLandscape = window.matchMedia('(orientation: landscape)').matches;
 					if(oldOrientLandscape != orientLandscape) {
 						resizeHandler(orientLandscape);
@@ -156,44 +138,22 @@
 				},
 			});
 
-			
 			function resizeHandler(landscape) {
 				let clickImg = document.querySelectorAll('a-image')[0];
 				let portraitImg = document.querySelectorAll('a-image')[1];
-				// if (window.innerWidth > window.innerHeight) {
 				if(landscape) {
 					clickImg.object3D.visible = true;
 					portraitImg.object3D.visible = false;
 				} else {
 					clickImg.object3D.visible = false;
 					portraitImg.object3D.visible = true;
-					document.querySelector('video').pause();
+					document.querySelector('#vidIphone').pause();
 				}
 			}
         </script>
 	</head>
 
 	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-
-		<!-- <a-scene embedded arjs='sourceType: webcam;' vr-mode-ui="enabled: false"> -->
-		<!-- <a-scene embedded arjs='sourceType: webcam; canvasWidth: 240; canvasHeight: 180; maxDetectionRate: 30; detectionMode: mono' vr-mode-ui="enabled: false"> -->
-			<!-- <a-assets> -->
-				<!-- <video crossOrigin="anonymous" id="vid" loop="true" type="video/mp4" src="video/sintel.mp4"></video> -->
-				<!-- <img id="portraitOrient" src="data/portrait_disable.png" style="display:none;"> -->
-				<!-- <img id="hiroClick" src="img/HIRO_click.jpg" style="display:none;"> -->
-			<!-- </a-assets> -->
-
-
-			<!-- <a-marker preset='hiro' id='marker-hiro' registerevents> -->
-				<!-- <a-video src="#vid" width="1" height="1" position="0 0 0" rotation="270 0 0" play="true"></a-video> -->
-				<!-- <a-image src="#hiroClick" rotation="270 0 0" transparent=true></a-image> -->
-				<!-- <a-image src="#portraitOrient" rotation="270 0 0"></a-image> -->
-			<!-- </a-marker> -->
-			
-
-			<!-- add a simple camera -->
-			<!-- <a-entity camera="active: true" position="0 0 0" data-aframe-default-camera></a-entity> -->
-        <!-- </a-scene> -->
-        
+		<video crossOrigin="anonymous" id="vidAndroid" loop="true" type="video/mp4" src="video/sintel.mp4" style="display:none"></video>
 	</body>
 </html>

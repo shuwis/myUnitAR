@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+	<head>
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <title>Приглашение на свадьбу Артема и Нигоры</title>
+        <!--amarker>-->
+        <style>
+			#arjsDebugUIContainer{ display: none!important; }
+		</style>
+		<script src="js/aframe.js"></script>
+		<!-- <script src="https://aframe.io/releases/0.9.0/aframe.min.js"></script> -->
+        <script src="js/aframe-ar.js"></script>
+        <!--<amarker-->
+        <!--threex>-->
+        <script src='js/three.js'></script>
+        <script src="js/artoolkit.min.js"></script>
+        <script src="js/artoolkit.api.js"></script>
+        <script src="js/threex-artoolkitsource.js"></script>
+        <script src="js/threex-artoolkitcontext.js"></script>
+        <script src="js/threex-arbasecontrols.js"></script>
+        <script src="js/threex-armarkercontrols.js"></script>
+        <!--<threex-->
+        <script>
+            //amarker>
+            if (!/Android/i.test(navigator.userAgent)) {
+                window.onload = () => {
+                    var ascene = document.createElement('a-scene');
+                    ascene.setAttribute("embedded", "");
+                    ascene.setAttribute("arjs", "sourceType:webcam;patternRatio:0.9");
+                    ascene.setAttribute("vr-mode-ui", "enabled:false;");
+                    var assets = document.createElement('a-assets');
+                    let videoTag = document.createElement('video');
+                    videoTag.setAttribute("crossOrigin", "anonymous");
+                    videoTag.setAttribute("id", "vidIphone");
+                    videoTag.setAttribute("loop", "true");
+                    videoTag.setAttribute("type", "video/mp4");
+                    videoTag.setAttribute("src", "video/sintel.mp4");
+
+                    assets.appendChild(videoTag);
+
+                    let clickImgTag = document.createElement('img');
+                    clickImgTag.setAttribute("id", "hiroClick");
+                    clickImgTag.setAttribute("src", "img/tap.png");
+                    clickImgTag.setAttribute("style", "display:none;");
+                    assets.appendChild(clickImgTag);
+
+                    let portraitImgTag = document.createElement('img');
+                    portraitImgTag.setAttribute("id", "portraitOrient");
+                    portraitImgTag.setAttribute("src", "img/portrait_disable.png");
+                    portraitImgTag.setAttribute("style", "display:none;");
+                    assets.appendChild(portraitImgTag);
+
+                    ascene.appendChild(assets);
+
+                    let amarker = document.createElement('a-marker');
+                    amarker.setAttribute("preset", "hiro");
+                    amarker.setAttribute("id", "marker-hiro");
+                    amarker.setAttribute("registerevents", "");
+                    let avideo = document.createElement('a-video');
+                    avideo.setAttribute("src", "#vidIphone");
+                    avideo.setAttribute("width", "1");
+                    avideo.setAttribute("height", "1");
+                    avideo.setAttribute("position", "0 0 0");
+                    avideo.setAttribute("rotation", "270 0 0");
+                    avideo.setAttribute("play", "true");
+                    amarker.appendChild(avideo);
+
+                    let aclickImg = document.createElement('a-image');
+                    aclickImg.setAttribute("src", "#hiroClick");
+                    aclickImg.setAttribute("rotation", "270 0 0");
+                    aclickImg.setAttribute("transparent", "true");
+                    amarker.appendChild(aclickImg);
+
+                    let aportraitImg = document.createElement('a-image');
+                    aportraitImg.setAttribute("src", "#portraitOrient");
+                    aportraitImg.setAttribute("rotation", "270 0 0");
+                    aportraitImg.setAttribute("transparent", "true");
+                    amarker.appendChild(aportraitImg);
+
+                    ascene.appendChild(amarker);
+
+                    let aentity = document.createElement('a-entity');
+                    aentity.setAttribute('camera', '');
+                    aentity.setAttribute("position", "0 0 0");
+                    aentity.setAttribute("data-aframe-default-camera", "");
+                    ascene.appendChild(aentity);
+
+                    ascene.setAttribute('display', 'none');
+                    document.body.appendChild(ascene);
+
+                    let elentity = document.querySelector('a-entity[camera]');
+                    elentity.setAttribute('camera', {active:true});
+                    elentity.removeAttribute('wasd-controls');
+                }
+            }
+            //<amarker
+        </script>
+		<script>
+            if (!/Android/i.test(navigator.userAgent)) {
+                alert('IOS');
+                var orientLandscape, oldOrientLandscape;
+                AFRAME.registerComponent('registerevents', {
+                    init: function () {
+                        var marker = this.el;
+                        let video = document.querySelector('#vidIphone');
+                        let clickImg = document.querySelectorAll('a-image')[0];
+                        let portraitImg = document.querySelectorAll('a-image')[1];
+
+                        marker.addEventListener('markerFound', function() {
+                            console.log('found');
+                            if (window.innerWidth > window.innerHeight) {
+                                clickImg.object3D.visible = true;
+                                portraitImg.object3D.visible = false;
+                                oldOrientLandscape = true;
+                            } else {
+                                clickImg.object3D.visible = false;
+                                portraitImg.object3D.visible = true;
+                                oldOrientLandscape = false;
+                            }
+                        });
+
+                        marker.addEventListener('markerLost', function() {
+                            console.log('lost');
+                            if (window.innerWidth > window.innerHeight) {
+                                if(video.played) {
+                                    video.pause();
+                                    clickImg.object3D.visible = true;
+                                    portraitImg.object3D.visible = false;
+                                }
+                            } else {
+                                portraitImg.object3D.visible = true;
+                                clickImg.object3D.visible = false;
+                            }
+                        });
+
+                        document.addEventListener('click', function (event) {
+                            if (window.innerWidth > window.innerHeight) {
+                                if (video.paused) {
+                                    clickImg.object3D.visible = false;
+                                    video.play();
+                                } else {
+                                    clickImg.object3D.visible = true;
+                                    video.pause();
+                                }
+                            }
+                        })
+                    },
+                    tick: function () {
+
+                        orientLandscape = window.matchMedia('(orientation: landscape)').matches;
+                        if(oldOrientLandscape != orientLandscape) {
+                            resizeHandler(orientLandscape);
+                            oldOrientLandscape = orientLandscape;
+                        }
+                    },
+                });
+
+                function resizeHandler(landscape) {
+                    let clickImg = document.querySelectorAll('a-image')[0];
+                    let portraitImg = document.querySelectorAll('a-image')[1];
+                    if(landscape) {
+                        clickImg.object3D.visible = true;
+                        portraitImg.object3D.visible = false;
+                    } else {
+                        clickImg.object3D.visible = false;
+                        portraitImg.object3D.visible = true;
+                        document.querySelector('#vidIphone').pause();
+                    }
+                }
+            }
+        </script>
+	</head>
+
+	<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+        <video crossOrigin="anonymous" id="vidAndroid" loop="true" type="video/mp4" src="video/sintel.mp4" style="display:none"></video>
+        <img id="portraitOrient" src="img/portrait_disable.png" style="display:none;">
+        <img id="hiroClick" src="img/tap.png" style="display:none;">
+        
+        <script>
+            if (/Android/i.test(navigator.userAgent)) {
+                alert('Android');
+                var scene, camera, renderer, clock, deltaTime, totalTime;
+                var arToolkitSource, arToolkitContext;
+                var markerRoot1;
+                var mesh1;
+                let isLandscape;
+        
+                initialize();
+                animate();
+                resizeHandler();
+        
+                function resizeHandler ()
+                {
+                    let video = scene.getObjectByName('video');
+                    let clickImg = scene.getObjectByName('hiroClick');
+                    let portraitImg = scene.getObjectByName('portraitOrient');
+                    let objs = scene.getObjectByName('objects');
+        
+                    if (window.innerWidth > window.innerHeight) {
+                        clickImg.visible = true;
+                        portraitImg.visible = false;
+                        video.visible = true;
+                    } else {
+                        clickImg.visible = false;
+                        portraitImg.visible = true;
+                        video.visible = true;
+                        document.getElementById('vidAndroid').pause();
+                    }
+                }
+        
+                function initialize()
+                {
+                    scene = new THREE.Scene();
+        
+                    let ambientLight = new THREE.AmbientLight( 0xcccccc, 0.5 );
+                    scene.add( ambientLight );
+                                
+                    camera = new THREE.Camera();
+                    scene.add(camera);
+        
+                    renderer = new THREE.WebGLRenderer({
+                        antialias : true,
+                        alpha: true
+                    });
+                    renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+                    renderer.setSize( window.innerWidth, window.innerHeight );
+                    renderer.domElement.style.position = 'absolute'
+                    renderer.domElement.style.top = '0px'
+                    renderer.domElement.style.left = '0px'
+                    document.body.appendChild( renderer.domElement );
+        
+                    clock = new THREE.Clock();
+                    deltaTime = 0;
+                    totalTime = 0;
+        
+                    ////////////////////////////////////////////////////////////
+                    // setup arToolkitSource
+                    ////////////////////////////////////////////////////////////
+        
+                    arToolkitSource = new THREEx.ArToolkitSource({
+                        sourceType : 'webcam',
+                    });
+        
+                    function onResize()
+                    {
+                        arToolkitSource.onResizeElement();
+                        arToolkitSource.copyElementSizeTo(renderer.domElement)	
+                        if ( arToolkitContext.arController !== null )
+                        {
+                            arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)	
+                        }	
+                    }
+        
+                    arToolkitSource.init(function onReady(){
+                        onResize()
+                    });
+        
+                    // handle resize event
+                    window.addEventListener('resize', function(){
+                        onResize();
+                    });
+        
+                    ////////////////////////////////////////////////////////////
+                    // setup arToolkitContext
+                    ////////////////////////////////////////////////////////////	
+        
+                    // create atToolkitContext
+                    arToolkitContext = new THREEx.ArToolkitContext({
+                        cameraParametersUrl: 'patterns/camera_para.dat',
+                        detectionMode: 'mono',
+                        patternRatio: 0.9
+                    });
+        
+                    // copy projection matrix to camera when initialization complete
+                    arToolkitContext.init( function onCompleted(){
+                        camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+                    });
+        
+                    ////////////////////////////////////////////////////////////
+                    // setup markerRoots
+                    ////////////////////////////////////////////////////////////
+        
+                    // build markerControls
+                    markerRoot1 = new THREE.Group();
+                    markerRoot1.name = 'objects';
+                    scene.add(markerRoot1);
+                    let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
+                        type: 'pattern', patternUrl: "patterns/hiro.patt",
+                    })
+        
+                    let geometry1 = new THREE.PlaneBufferGeometry(1,1, 4,4);
+        
+                    let video = document.getElementById( 'vidAndroid' );
+        
+                    let texture = new THREE.VideoTexture( video );
+                    texture.minFilter = THREE.LinearFilter;
+                    texture.magFilter = THREE.LinearFilter;
+                    texture.format = THREE.RGBFormat;
+                    let material1 = new THREE.MeshBasicMaterial( { map: texture } );
+        
+                    mesh1 = new THREE.Mesh( geometry1, material1 );
+                    mesh1.rotation.x = -Math.PI/2;
+                    mesh1.name = 'video';
+                    markerRoot1.add( mesh1 );
+        
+                    let geometry2 = new THREE.PlaneBufferGeometry(1,1, 4,4);
+                    let tapImg = document.getElementById( 'hiroClick' );
+                    let loader = new THREE.TextureLoader();
+                    let texture2 = loader.load( tapImg.src );
+                    texture2.magFilter = THREE.LinearFilter;
+                    texture2.minFilter = THREE.LinearFilter;
+                    let material2 = new THREE.MeshBasicMaterial( { map: texture2, transparent: true, side: THREE.DoubleSide, depthWrite: false} );
+        
+                    mesh2 = new THREE.Mesh( geometry2, material2 );
+                    mesh2.rotation.x = -Math.PI/2;
+                    mesh2.position.set(0,0.1,0);
+                    mesh2.name = 'hiroClick';
+                    markerRoot1.add( mesh2 );
+        
+                    let geometry3 = new THREE.PlaneBufferGeometry(1,1, 4,4);
+                    let orientImg = document.getElementById( 'portraitOrient' );
+                    let loader3 = new THREE.TextureLoader();
+                    let texture3 = loader3.load( orientImg.src );
+                    texture3.magFilter = THREE.LinearFilter;
+                    texture3.minFilter = THREE.LinearFilter;
+                    let material3 = new THREE.MeshBasicMaterial( { map: texture3, transparent: true, side: THREE.DoubleSide, depthWrite: false} );
+        
+                    mesh3 = new THREE.Mesh( geometry3, material3 );
+                    mesh3.rotation.x = -Math.PI/2;
+                    mesh3.position.set(0,0,0);
+                    mesh3.name = 'portraitOrient';
+                    markerRoot1.add( mesh3 );
+        
+                    document.body.addEventListener('click', function(){
+                        let video = document.getElementById('vidAndroid');
+                        let clickImg = scene.getObjectByName('hiroClick');
+                        let portraitImg = scene.getObjectByName('portraitOrient');
+                        let objs = scene.getObjectByName('objects');
+        
+                        // let ua = navigator.userAgent.match(/Android/i);
+                        if(!/Android/i.test(navigator.userAgent))
+                            console.log('ytt')
+        
+        
+                        if (window.innerWidth > window.innerHeight && objs.visible) {
+                            portraitImg.visible = false;
+                            if(video.paused) {
+                                video.play();
+                                clickImg.visible = false;
+                            } else {
+                                video.pause();
+                                clickImg.visible = true;
+                            }
+                        }
+                    })
+        
+        
+                    window.onresize = function(event) {
+                        console.log(event);
+                        resizeHandler();
+                    }
+                }
+        
+        
+                function update()
+                {
+                    // update artoolkit on every frame
+                    if ( arToolkitSource.ready !== false )
+                    {
+                        arToolkitContext.update( arToolkitSource.domElement );
+                    }
+        
+                    let video = document.getElementById('vidAndroid');
+                    let clickImg = scene.getObjectByName('hiroClick');
+                    let portraitImg = scene.getObjectByName('portraitOrient');
+                    let objs = scene.getObjectByName('objects');
+                    //нет маркера в поле видимости
+                    if (!objs.visible && video.played)
+                    {
+                        video.pause();
+                        if (window.innerWidth > window.innerHeight) {
+                            clickImg.visible = true;
+                        }
+                    }
+                }
+        
+                function render()
+                {
+                    renderer.render( scene, camera );
+                }
+        
+                function animate()
+                {
+                    requestAnimationFrame(animate);
+                    deltaTime = clock.getDelta();
+                    totalTime += deltaTime;
+                    update();
+                    render();
+                }
+            }
+        </script>
+	</body>
+</html>

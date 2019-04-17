@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<head>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>Приглашение на свадьбу Артема и Нигоры</title>
+	<!-- include three.js library -->
+	<script src='js/three.js'></script>
+	<!-- include jsartookit -->
+	<script src="js/artoolkit.min.js"></script>
+	<script src="js/artoolkit.api.js"></script>
+	<!-- include threex.artoolkit -->
+	<script src="js/threex-artoolkitsource.js"></script>
+	<script src="js/threex-artoolkitcontext.js"></script>
+	<script src="js/threex-arbasecontrols.js"></script>
+	<script src="js/threex-armarkercontrols.js"></script>
+</head>
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+	<video crossOrigin="anonymous" id="vidAndroid" loop="true" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' src="video/sintel.mp4" style="display:none"></video>
+	<img id="portraitOrient" src="img/portrait_disable.png" style="display:none;">
+	<img id="hiroClick" src="img/tap.png" style="display:none;">
+
+	<script>
+		var scene, camera, renderer, clock, deltaTime, totalTime;
+		var arToolkitSource, arToolkitContext;
+		var markerRoot1;
+		var mesh1;
+		let isLandscape;
+
+		initialize();
+		animate();
+		resizeHandler();
+
+		function resizeHandler ()
+		{
+			let video = scene.getObjectByName('video');
+			let clickImg = scene.getObjectByName('hiroClick');
+			let portraitImg = scene.getObjectByName('portraitOrient');
+			let objs = scene.getObjectByName('objects');
+
+			if (window.innerWidth > window.innerHeight) {
+				clickImg.visible = true;
+				portraitImg.visible = false;
+				video.visible = true;
+			} else {
+				clickImg.visible = false;
+				portraitImg.visible = true;
+				video.visible = true;
+				document.getElementById('vidAndroid').pause();
+			}
+		}
+
+		function initialize()
+		{
+			scene = new THREE.Scene();
+
+			let ambientLight = new THREE.AmbientLight( 0xcccccc, 0.5 );
+			scene.add( ambientLight );
+						
+			camera = new THREE.Camera();
+			scene.add(camera);
+
+			renderer = new THREE.WebGLRenderer({
+				antialias : true,
+				alpha: true
+			});
+			renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.domElement.style.position = 'absolute'
+			renderer.domElement.style.top = '0px'
+			renderer.domElement.style.left = '0px'
+			document.body.appendChild( renderer.domElement );
+
+			clock = new THREE.Clock();
+			deltaTime = 0;
+			totalTime = 0;
+
+			////////////////////////////////////////////////////////////
+			// setup arToolkitSource
+			////////////////////////////////////////////////////////////
+
+			arToolkitSource = new THREEx.ArToolkitSource({
+				sourceType : 'webcam',
+			});
+
+			function onResize()
+			{
+				arToolkitSource.onResizeElement();
+				arToolkitSource.copyElementSizeTo(renderer.domElement)	
+				if ( arToolkitContext.arController !== null )
+				{
+					arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)	
+				}	
+			}
+
+			arToolkitSource.init(function onReady(){
+				onResize()
+			});
+
+			// handle resize event
+			window.addEventListener('resize', function(){
+				onResize();
+			});
+
+			////////////////////////////////////////////////////////////
+			// setup arToolkitContext
+			////////////////////////////////////////////////////////////	
+
+			// create atToolkitContext
+			arToolkitContext = new THREEx.ArToolkitContext({
+				cameraParametersUrl: 'patterns/camera_para.dat',
+				detectionMode: 'mono',
+				patternRatio: 0.9
+			});
+
+			// copy projection matrix to camera when initialization complete
+			arToolkitContext.init( function onCompleted(){
+				camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+			});
+
+			////////////////////////////////////////////////////////////
+			// setup markerRoots
+			////////////////////////////////////////////////////////////
+
+			// build markerControls
+			markerRoot1 = new THREE.Group();
+			markerRoot1.name = 'objects';
+			scene.add(markerRoot1);
+			let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
+				type: 'pattern', patternUrl: "patterns/hiro.patt",
+			})
+
+			let geometry1 = new THREE.PlaneBufferGeometry(1,1, 4,4);
+
+			let video = document.getElementById( 'vidAndroid' );
+
+			let texture = new THREE.VideoTexture( video );
+			texture.minFilter = THREE.LinearFilter;
+			texture.magFilter = THREE.LinearFilter;
+			texture.format = THREE.RGBFormat;
+			let material1 = new THREE.MeshBasicMaterial( { map: texture } );
+
+			mesh1 = new THREE.Mesh( geometry1, material1 );
+			mesh1.rotation.x = -Math.PI/2;
+			mesh1.name = 'video';
+			markerRoot1.add( mesh1 );
+
+			let geometry2 = new THREE.PlaneBufferGeometry(1,1, 4,4);
+			let tapImg = document.getElementById( 'hiroClick' );
+			let loader = new THREE.TextureLoader();
+			let texture2 = loader.load( tapImg.src );
+			texture2.magFilter = THREE.LinearFilter;
+			texture2.minFilter = THREE.LinearFilter;
+			let material2 = new THREE.MeshBasicMaterial( { map: texture2, transparent: true, side: THREE.DoubleSide, depthWrite: false} );
+
+			mesh2 = new THREE.Mesh( geometry2, material2 );
+			mesh2.rotation.x = -Math.PI/2;
+			mesh2.position.set(0,0.1,0);
+			mesh2.name = 'hiroClick';
+			markerRoot1.add( mesh2 );
+
+			let geometry3 = new THREE.PlaneBufferGeometry(1,1, 4,4);
+			let orientImg = document.getElementById( 'portraitOrient' );
+			let loader3 = new THREE.TextureLoader();
+			let texture3 = loader3.load( orientImg.src );
+			texture3.magFilter = THREE.LinearFilter;
+			texture3.minFilter = THREE.LinearFilter;
+			let material3 = new THREE.MeshBasicMaterial( { map: texture3, transparent: true, side: THREE.DoubleSide, depthWrite: false} );
+
+			mesh3 = new THREE.Mesh( geometry3, material3 );
+			mesh3.rotation.x = -Math.PI/2;
+			mesh3.position.set(0,0,0);
+			mesh3.name = 'portraitOrient';
+			markerRoot1.add( mesh3 );
+
+			document.body.addEventListener('click', function(){
+				let video = document.getElementById('vidAndroid');
+				let clickImg = scene.getObjectByName('hiroClick');
+				let portraitImg = scene.getObjectByName('portraitOrient');
+				let objs = scene.getObjectByName('objects');
+
+				// let ua = navigator.userAgent.match(/Android/i);
+				if(!/Android/i.test(navigator.userAgent))
+					console.log('ytt')
+
+
+				if (window.innerWidth > window.innerHeight && objs.visible) {
+					portraitImg.visible = false;
+					if(video.paused) {
+						video.play();
+						clickImg.visible = false;
+					} else {
+						video.pause();
+						clickImg.visible = true;
+					}
+				}
+			})
+
+
+			window.onresize = function(event) {
+				console.log(event);
+				resizeHandler();
+			}
+		}
+
+
+		function update()
+		{
+			// update artoolkit on every frame
+			if ( arToolkitSource.ready !== false )
+			{
+				arToolkitContext.update( arToolkitSource.domElement );
+			}
+
+			let video = document.getElementById('vidAndroid');
+			let clickImg = scene.getObjectByName('hiroClick');
+			let portraitImg = scene.getObjectByName('portraitOrient');
+			let objs = scene.getObjectByName('objects');
+			//нет маркера в поле видимости
+			if (!objs.visible && video.played)
+			{
+				video.pause();
+				if (window.innerWidth > window.innerHeight) {
+					clickImg.visible = true;
+				}
+			}
+		}
+
+		function render()
+		{
+			renderer.render( scene, camera );
+		}
+
+		function animate()
+		{
+			requestAnimationFrame(animate);
+			deltaTime = clock.getDelta();
+			totalTime += deltaTime;
+			update();
+			render();
+		}
+	</script>
+
+</body>
+</html>
