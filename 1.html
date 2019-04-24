@@ -12,6 +12,27 @@
 	<script src="js/threex-artoolkitcontext.js"></script>
 	<script src="js/threex-arbasecontrols.js"></script>
 	<script src="js/threex-armarkercontrols.js"></script>
+	<style>
+		@media (orientation: landscape) {
+			#portraitOrient {
+				/* margin-Top: row; */
+				display: none !important;
+			},
+			#camVideo{
+				display: none !important;
+			}
+		}
+
+		@media (orientation: portrait) {
+			#portraitOrient {
+				margin-Top: 50%;
+				display: block !important;
+			},
+			#camVideo{
+				display: block !important;
+			}
+		}
+	</style>
 </head>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
@@ -37,16 +58,21 @@
 			let clickImg = scene.getObjectByName('hiroClick');
 			let portraitImg = scene.getObjectByName('portraitOrient');
 			let objs = scene.getObjectByName('objects');
+			let canvas = document.getElementsByTagName("canvas");
 
 			if (window.innerWidth > window.innerHeight) {
 				clickImg.visible = true;
 				portraitImg.visible = false;
 				video.visible = true;
+
+				canvas[0].style.display = 'block';
 			} else {
 				clickImg.visible = false;
-				portraitImg.visible = true;
-				video.visible = true;
+				portraitImg.visible = false;
+				video.visible = false;
 				document.getElementById('vidAndroid').pause();
+				
+				canvas[0].style.display = 'none';
 			}
 		}
 
@@ -100,6 +126,7 @@
 			// handle resize event
 			window.addEventListener('resize', function(){
 				onResize();
+				resizeHandler();
 			});
 
 			////////////////////////////////////////////////////////////
@@ -131,7 +158,7 @@
 				type: 'pattern', patternUrl: "patterns/vid_img.patt",
 			})
 
-			let geometry1 = new THREE.PlaneBufferGeometry(1,1, 4,4);
+			let geometry1 = new THREE.PlaneBufferGeometry(0.9,0.9, 4,4);
 
 			let video = document.getElementById( 'vidAndroid' );
 
@@ -198,10 +225,10 @@
 			})
 
 
-			window.onresize = function(event) {
-				console.log(event);
-				resizeHandler();
-			}
+			// window.onresize = function(event) {
+			// 	console.log(event);
+			// 	resizeHandler();
+			// }
 		}
 
 
@@ -211,6 +238,13 @@
 			if ( arToolkitSource.ready !== false )
 			{
 				arToolkitContext.update( arToolkitSource.domElement );
+				// console.log(arToolkitSource.domElement.style.display);
+				// arToolkitSource.domElement.id = 'camVideo';
+				if (window.innerWidth > window.innerHeight) {
+					arToolkitSource.domElement.style.display = 'block';
+				} else {
+					arToolkitSource.domElement.style.display = 'none';
+				}
 			}
 
 			let video = document.getElementById('vidAndroid');
@@ -225,6 +259,8 @@
 					clickImg.visible = true;
 				}
 			}
+
+
 		}
 
 		function render()
