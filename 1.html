@@ -15,7 +15,8 @@
 </head>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-	<video crossOrigin="anonymous" id="vidAndroid" loop="true" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' src="video/sintel.mp4" style="display:none"></video>
+	<!-- <video crossOrigin="anonymous" id="vidAndroid" loop="true" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' src="video/sintel.mp4" style="display:none"></video> -->
+	<video crossOrigin="anonymous" id="vidAndroid" loop="true" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' src="video/VID.mp4" style="display:none"></video>
 	<img id="portraitOrient" src="img/portrait_disable.png" style="display:none;">
 	<img id="hiroClick" src="img/tap.png" style="display:none;">
 
@@ -126,7 +127,8 @@
 			markerRoot1.name = 'objects';
 			scene.add(markerRoot1);
 			let markerControls1 = new THREEx.ArMarkerControls(arToolkitContext, markerRoot1, {
-				type: 'pattern', patternUrl: "patterns/hiro.patt",
+				// type: 'pattern', patternUrl: "patterns/hiro.patt",
+				type: 'pattern', patternUrl: "patterns/vid_img.patt",
 			})
 
 			let geometry1 = new THREE.PlaneBufferGeometry(1,1, 4,4);
@@ -179,8 +181,8 @@
 				let objs = scene.getObjectByName('objects');
 
 				// let ua = navigator.userAgent.match(/Android/i);
-				if(!/Android/i.test(navigator.userAgent))
-					console.log('ytt')
+				// if(!/Android/i.test(navigator.userAgent))
+				// 	console.log('ytt')
 
 
 				if (window.innerWidth > window.innerHeight && objs.visible) {

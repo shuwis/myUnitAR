@@ -20,7 +20,8 @@
                 videoTag.setAttribute("id", "vidIphone");
                 videoTag.setAttribute("loop", "true");
                 videoTag.setAttribute("type", "video/mp4");
-                videoTag.setAttribute("src", "video/sintel.mp4");
+                // videoTag.setAttribute("src", "video/sintel.mp4");
+				videoTag.setAttribute("src", "video/VID.mp4");
 
                 assets.appendChild(videoTag);
 
@@ -39,8 +40,10 @@
                 ascene.appendChild(assets);
 
                 let amarker = document.createElement('a-marker');
-                amarker.setAttribute("preset", "hiro");
-                amarker.setAttribute("id", "marker-hiro");
+                // amarker.setAttribute("preset", "hiro");
+                // amarker.setAttribute("id", "marker-hiro");
+				amarker.setAttribute("url", "patterns/vid_img.patt");
+				amarker.setAttribute("type", "pattern");
                 amarker.setAttribute("registerevents", "");
                 let avideo = document.createElement('a-video');
                 avideo.setAttribute("src", "#vidIphone");
